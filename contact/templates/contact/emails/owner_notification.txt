@@ -1,0 +1,20 @@
+Здравствуйте!
+
+Новое обращение через форму обратной связи.
+
+Имя: {{ contact.name }}
+Email: {{ contact.email }}
+Телефон: {{ contact.phone }}
+
+Комментарий:
+{{ contact.comment }}
+
+--- AI-анализ ---
+Тональность: {{ contact.get_ai_sentiment_display }}
+Категория: {{ contact.get_ai_category_display }}
+AI использован: {% if contact.ai_used %}да{% else %}нет (fallback){% endif %}
+
+Черновик ответа:
+{{ contact.ai_reply }}
+
+ID обращения: {{ contact.id }}

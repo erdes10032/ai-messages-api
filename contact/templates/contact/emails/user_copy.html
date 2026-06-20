@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head><meta charset="utf-8"><title>Обращение получено</title></head>
+<body style="font-family: Arial, sans-serif; color: #333;">
+  <h2>Здравствуйте, {{ contact.name }}!</h2>
+  <p>Спасибо за ваше обращение. Мы получили ваше сообщение и свяжемся с вами в ближайшее время.</p>
+  <p><strong>Ваш комментарий:</strong></p>
+  <blockquote style="border-left: 3px solid #4a90d9; padding-left: 12px;">{{ contact.comment }}</blockquote>
+  <hr>
+  <p><strong>Предварительный ответ:</strong></p>
+  <p>{{ contact.ai_reply }}</p>
+  <p>С уважением,<br>Команда разработчика</p>
+</body>
+</html>
