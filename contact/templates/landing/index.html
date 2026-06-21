@@ -1,0 +1,171 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Backend Developer</title>
+  <link rel="icon" type="image/x-icon" href="{% static 'messages.ico' %}">
+  <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/">AI Messages API</a>
+      <div class="navbar-nav ms-auto flex-row gap-3">
+        <a class="nav-link" href="#contact">Связаться</a>
+        <a class="nav-link" href="/api/docs/" target="_blank">API</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-5">
+    <section class="text-center mb-5">
+      <h1 class="display-5 fw-bold">AI Messages API</h1>
+      <p class="lead text-muted col-lg-8 mx-auto">
+        ответы на письма с помощью ИИ.
+      </p>
+    </section>
+
+    {% if messages %}
+      <div class="row justify-content-center mb-3">
+        <div class="col-lg-7">
+          {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}" role="alert">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    {% if success %}
+      <div class="row justify-content-center mb-4">
+        <div class="col-lg-7">
+          <div class="alert alert-success" role="alert">
+            <strong>Спасибо!</strong> Сообщение отправлено.
+            {% if success.ai_reply %}
+              <hr class="my-2">
+              <small>
+                AI: {{ success.ai_category }}, {{ success.ai_sentiment }}.
+                {{ success.ai_reply }}
+              </small>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <section id="contact" class="row justify-content-center">
+      <div class="col-lg-7">
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+            <h2 class="h4 mb-3">Обратная связь</h2>
+
+            <form method="post" action="/">
+              {% csrf_token %}
+
+              <div class="mb-3">
+                <label for="name" class="form-label">Имя</label>
+                <input type="text" class="form-control{% if errors.name %} is-invalid{% endif %}"
+                       id="name" name="name" required minlength="2" maxlength="100"
+                       value="{{ form_data.name|default:'' }}">
+                {% if errors.name %}<div class="invalid-feedback">{{ errors.name.0 }}</div>{% endif %}
+              </div>
+
+              <div class="mb-3">
+                <label for="phone" class="form-label">Телефон</label>
+                <input type="tel" class="form-control{% if errors.phone %} is-invalid{% endif %}"
+                       id="phone" name="phone" required placeholder="+7 (999) 123-45-67"
+                       value="{{ form_data.phone|default:'' }}" autocomplete="tel">
+                {% if errors.phone %}<div class="invalid-feedback">{{ errors.phone.0 }}</div>{% endif %}
+              </div>
+
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control{% if errors.email %} is-invalid{% endif %}"
+                       id="email" name="email" required
+                       value="{{ form_data.email|default:'' }}">
+                {% if errors.email %}<div class="invalid-feedback">{{ errors.email.0 }}</div>{% endif %}
+              </div>
+
+              <div class="mb-3">
+                <label for="comment" class="form-label">Сообщение</label>
+                <textarea class="form-control{% if errors.comment %} is-invalid{% endif %}"
+                          id="comment" name="comment" rows="4" required
+                          minlength="10" maxlength="2000">{{ form_data.comment|default:'' }}</textarea>
+                {% if errors.comment %}<div class="invalid-feedback">{{ errors.comment.0 }}</div>{% endif %}
+              </div>
+
+              <div class="d-none" aria-hidden="true">
+                <input type="text" name="website" tabindex="-1" autocomplete="off">
+              </div>
+
+              <button type="submit" class="btn btn-primary w-100">Отправить</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="text-center text-muted py-4 border-top">
+    <small>&copy; 2026 · <a href="/api/health" class="text-muted">API Status</a></small>
+  </footer>
+
+  <script>
+    (function () {
+      const phoneInput = document.getElementById('phone');
+      if (!phoneInput) return;
+
+      function formatRussianPhone(value) {
+        let digits = value.replace(/\D/g, '');
+
+        if (digits.startsWith('8')) {
+          digits = '7' + digits.slice(1);
+        } else if (digits.length > 0 && !digits.startsWith('7')) {
+          digits = '7' + digits;
+        }
+
+        digits = digits.slice(0, 11);
+        if (!digits) return '';
+
+        const local = digits.slice(1);
+        let formatted = '+7';
+
+        if (local.length > 0) {
+          formatted += ' (' + local.slice(0, 3);
+        }
+        if (local.length >= 3) {
+          formatted += ')';
+        }
+        if (local.length > 3) {
+          formatted += ' ' + local.slice(3, 6);
+        }
+        if (local.length > 6) {
+          formatted += '-' + local.slice(6, 8);
+        }
+        if (local.length > 8) {
+          formatted += '-' + local.slice(8, 10);
+        }
+
+        return formatted;
+      }
+
+      function applyFormat() {
+        const formatted = formatRussianPhone(phoneInput.value);
+        phoneInput.value = formatted;
+      }
+
+      phoneInput.addEventListener('input', applyFormat);
+      phoneInput.addEventListener('paste', function () {
+        setTimeout(applyFormat, 0);
+      });
+
+      if (phoneInput.value) {
+        applyFormat();
+      }
+    })();
+  </script>
+</body>
+</html>
