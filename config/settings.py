@@ -12,8 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(
     DEBUG=(bool, False),
     REDIS_USE_SSL=(bool, False),
-    EMAIL_USE_SSL=(bool, False),
-    EMAIL_USE_TLS=(bool, True),
+    SEND_USER_EMAIL_COPY=(bool, True),
     RATE_LIMIT_REQUESTS=(int, 5),
     RATE_LIMIT_WINDOW_SECONDS=(int, 900),
     OPENROUTER_TIMEOUT_SECONDS=(int, 15),
@@ -189,20 +188,15 @@ CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS')
 CORS_ALLOW_METHODS = ['GET', 'POST', 'OPTIONS']
 CORS_ALLOW_HEADERS = ['content-type', 'accept', 'origin']
 
-# Email
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = env('EMAIL_HOST', default='smtp.yandex.ru')
-EMAIL_PORT = env.int('EMAIL_PORT', default=465)
-EMAIL_USE_SSL = env('EMAIL_USE_SSL')
-EMAIL_USE_TLS = env('EMAIL_USE_TLS')
-EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default=EMAIL_HOST_USER)
-EMAIL_ADMIN = env('EMAIL_ADMIN', default=EMAIL_HOST_USER)
-EMAIL_TIMEOUT = 15
-
-# Resend API (HTTPS) — для Render, где SMTP заблокирован
+# Email (Resend API — HTTPS, работает локально и на Render)
 RESEND_API_KEY = env('RESEND_API_KEY', default='')
+DEFAULT_FROM_EMAIL = env(
+    'DEFAULT_FROM_EMAIL',
+    default='AI Messages <onboarding@resend.dev>',
+)
+EMAIL_ADMIN = env('EMAIL_ADMIN', default='')
+SEND_USER_EMAIL_COPY = env('SEND_USER_EMAIL_COPY')
+EMAIL_TIMEOUT = 15
 
 # Rate limiting
 RATE_LIMIT_REQUESTS = env('RATE_LIMIT_REQUESTS')

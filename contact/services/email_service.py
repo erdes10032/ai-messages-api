@@ -1,7 +1,6 @@
 import logging
 
 from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
 from contact.models import ContactRequest
@@ -13,7 +12,8 @@ logger = logging.getLogger('contact')
 class EmailService:
     def send_contact_notifications(self, contact: ContactRequest) -> None:
         self._send_to_owner(contact)
-        self._send_copy_to_user(contact)
+        if settings.SEND_USER_EMAIL_COPY:
+            self._send_copy_to_user(contact)
 
     def _send_email(
         self,
@@ -24,26 +24,16 @@ class EmailService:
         html_body: str,
         reply_to: str | None = None,
     ) -> None:
-        if settings.RESEND_API_KEY:
-            send_via_resend(
-                to=to,
-                subject=subject,
-                text=text_body,
-                html=html_body,
-                reply_to=reply_to,
-            )
-            return
+        if not settings.RESEND_API_KEY:
+            raise ResendError('RESEND_API_KEY is not configured')
 
-        recipients = [to] if isinstance(to, str) else to
-        message = EmailMultiAlternatives(
+        send_via_resend(
+            to=to,
             subject=subject,
-            body=text_body,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=recipients,
-            reply_to=[reply_to] if reply_to else None,
+            text=text_body,
+            html=html_body,
+            reply_to=reply_to,
         )
-        message.attach_alternative(html_body, 'text/html')
-        message.send(fail_silently=False)
 
     def _send_to_owner(self, contact: ContactRequest) -> None:
         subject = f'[Обращение] {contact.get_ai_category_display()} — {contact.name}'

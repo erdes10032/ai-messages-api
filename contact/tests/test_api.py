@@ -84,7 +84,7 @@ class ContactAPITestCase(TestCase):
             reply='Спасибо за обращение.',
             ai_used=True,
         )
-        mock_email.side_effect = Exception('SMTP connection failed')
+        mock_email.side_effect = Exception('Resend API error')
 
         response = self.client.post('/api/contact', self.valid_payload, format='json')
 
