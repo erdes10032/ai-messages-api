@@ -5,6 +5,7 @@ from django.template.loader import render_to_string
 
 from contact.models import ContactRequest
 from contact.services.resend_client import ResendError, send_via_resend
+from contact.services.smtp_client import SmtpError, send_via_smtp
 
 logger = logging.getLogger('contact')
 
@@ -24,16 +25,29 @@ class EmailService:
         html_body: str,
         reply_to: str | None = None,
     ) -> None:
-        if not settings.RESEND_API_KEY:
-            raise ResendError('RESEND_API_KEY is not configured')
+        if settings.EMAIL_PROVIDER == 'resend':
+            if not settings.RESEND_API_KEY:
+                raise ResendError('RESEND_API_KEY is not configured')
+            send_via_resend(
+                to=to,
+                subject=subject,
+                text=text_body,
+                html=html_body,
+                reply_to=reply_to,
+            )
+            return
 
-        send_via_resend(
-            to=to,
-            subject=subject,
-            text=text_body,
-            html=html_body,
-            reply_to=reply_to,
-        )
+        if settings.EMAIL_PROVIDER == 'smtp':
+            send_via_smtp(
+                to=to,
+                subject=subject,
+                text=text_body,
+                html=html_body,
+                reply_to=reply_to,
+            )
+            return
+
+        raise ValueError(f'Unsupported EMAIL_PROVIDER: {settings.EMAIL_PROVIDER!r}')
 
     def _send_to_owner(self, contact: ContactRequest) -> None:
         subject = f'[Обращение] {contact.get_ai_category_display()} — {contact.name}'
