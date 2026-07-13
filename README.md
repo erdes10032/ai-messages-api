@@ -30,7 +30,6 @@ Backend-сервис для лендинг-презентации разрабо
 | `EMAIL_HOST_USER` | Yandex-логин (при `smtp`) |
 | `EMAIL_HOST_PASSWORD` | Пароль приложения Yandex |
 | `DEFAULT_FROM_EMAIL` | Адрес отправителя |
-| `RESEND_API_KEY` | API-ключ Resend (при `resend`) |
 
 **Группа 2 — дефолты для Docker (менять не обязательно):**
 
